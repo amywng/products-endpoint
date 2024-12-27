@@ -1,0 +1,145 @@
+[
+  {
+    "id": "TNT67890",
+    "name": "Coleman Sundome Camping Tent",
+    "categories": [
+      "outdoor"
+    ],
+    "stars": 417,
+    "price": 8000
+  },
+  {
+    "id": "AUD24680",
+    "name": "Beats Studio3 Wireless Headphones",
+    "categories": [
+      "electronics"
+    ],
+    "stars": 468,
+    "price": 22000
+  },
+  {
+    "id": "TOO35791",
+    "name": "Philips Sonicare 4100 Electric Toothbrush",
+    "categories": [
+      "home goods"
+    ],
+    "stars": 271,
+    "price": 4900
+  },
+  {
+    "id": "FIT13580",
+    "name": "Fitbit Versa 3 Health & Fitness Smartwatch",
+    "categories": [
+      "electronics",
+      "sports"
+    ],
+    "stars": 415,
+    "price": 22900
+  },
+  {
+    "id": "NOP24680",
+    "name": "Logitech MX Master 3 Advanced Wireless Mouse",
+    "categories": [
+      "electronics",
+      "office supplies"
+    ],
+    "stars": 122,
+    "price": 12000
+  },
+  {
+    "id": "YZA24680",
+    "name": "Nintendo Switch OLED Model",
+    "categories": [
+      "electronics",
+      "sports"
+    ],
+    "stars": 481,
+    "price": 35000
+  },
+  {
+    "id": "STR35791",
+    "name": "Roku Streaming Stick 4K",
+    "categories": [
+      "electronics",
+      "home goods"
+    ],
+    "stars": 439,
+    "price": 5000
+  },
+  {
+    "id": "TOY35791",
+    "name": "Monopoly Classic Board Game",
+    "categories": [
+      "toys"
+    ],
+    "stars": 449,
+    "price": 2000
+  },
+  {
+    "id": "GMT35791",
+    "name": "Garmin Fenix 6 Pro GPS Smartwatch",
+    "categories": [
+      "electronics",
+      "sports"
+    ],
+    "stars": 466,
+    "price": 55000
+  },
+  {
+    "id": "BCD24680",
+    "name": "IKEA Markus Office Chair",
+    "categories": [
+      "home goods",
+      "office supplies"
+    ],
+    "stars": 322,
+    "price": 19900
+  },
+  {
+    "id": "BOT46802",
+    "name": "Hydro Flask 32 oz Water Bottle",
+    "categories": [
+      "outdoor",
+      "home goods"
+    ],
+    "stars": 435,
+    "price": 4500
+  },
+  {
+    "id": "EFG46802",
+    "name": "Adidas Ultraboost 22 Running Shoes",
+    "categories": [
+      "apparel",
+      "sports"
+    ],
+    "stars": 478,
+    "price": 18000
+  },
+  {
+    "id": "CAN24680",
+    "name": "Canon EOS R Mirrorless Camera",
+    "categories": [
+      "electronics"
+    ],
+    "stars": 160,
+    "price": 179900
+  },
+  {
+    "id": "WTC35791",
+    "name": "Rolex Submariner Watch",
+    "categories": [
+      "luxury"
+    ],
+    "stars": 500,
+    "price": 900000
+  },
+  {
+    "id": "DWD35791",
+    "name": "DeWalt Cordless Drill",
+    "categories": [
+      "home goods"
+    ],
+    "stars": 421,
+    "price": 12900
+  }
+]
