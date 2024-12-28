@@ -7,29 +7,31 @@ afterAll(() => {
   server.close();
 })
 
-describe('Test /health', () => {
-  it('GET /health should respond with healthy message', async () => {
+describe('GET /health', () => {
+  it('responds with healthy message', async () => {
     const response = await request(app).get('/health');
     expect(response.statusCode).toBe(200);
     expect(response.body).toEqual({ msg: "healthy" });
   })
 })
 
-describe('Test valid category inputs to /products', () => {
-  it('products endpoint no params', async () => {
+describe('GET /products', () => {
+  it('no query params responds with array of 3 products', async () => {
     const response = await request(app).get(apiURL);
     expect(response.statusCode).toBe(200);
     expect(Array.isArray(response.body)).toBe(true);
     expect(response.body.length).toBe(3);
   })
+})
 
+describe('GET /products with category params', () => {
   it('one category filters correctly', async () => {
     const response = await request(app).get(`${apiURL}?categories=electronics`);
     expect(response.statusCode).toBe(200);
     expect(response.body.every(product => product.categories.includes('electronics'))).toBe(true);
   })
 
-  it('two categories filters correctly', async () => {
+  it('two categories filter correctly', async () => {
     const response = await request(app).get
       (`${apiURL}?categories=electronics,sports`);
     expect(response.statusCode).toBe(200);
@@ -37,7 +39,7 @@ describe('Test valid category inputs to /products', () => {
       (product.categories.includes('electronics') || product.categories.includes('sports')))).toBe(true);
   })
 
-  it('three categories, one with space, filters correctly', async () => {
+  it('three categories, one with space, filter correctly', async () => {
     const response = await request(app).get
       (`${apiURL}?categories=electronics,sports,home%20goods`);
     expect(response.statusCode).toBe(200);
@@ -48,8 +50,8 @@ describe('Test valid category inputs to /products', () => {
   })
 })
 
-describe('Test price & stars inputs to /products', () => {
-  it('should apply price min and max filters correctly', async () => {
+describe('GET /products price and star constraint params', () => {
+  it('given both price min and max, filters correctly', async () => {
     const response = await request(app).get(
       `${apiURL}?price_min=50&price_max=200`
     );
@@ -59,29 +61,7 @@ describe('Test price & stars inputs to /products', () => {
     ).toBe(true);
   });
 
-  it('test same num stars', async () => {
-    const response = await request(app).get(
-      `${apiURL}?star_min=100&star_max=100`
-    )
-
-    expect(response.status).toBe(200);
-    expect(
-      response.body.every(product => product.stars === 200)
-    ).toBe(true);
-  })
-
-  it('test same num price', async () => {
-    const response = await request(app).get(
-      `${apiURL}?price_min=100&price_max=100`
-    )
-
-    expect(response.status).toBe(200);
-    expect(
-      response.body.every(product => product.price === 200)
-    ).toBe(true);
-  })
-
-  it('should apply price min filter correctly', async () => {
+  it('given just price min, filters correctly', async () => {
     const response = await request(app).get(
       `${apiURL}?price_min=123400`
     );
@@ -91,7 +71,7 @@ describe('Test price & stars inputs to /products', () => {
     ).toBe(true);
   });
 
-  it('should apply price max filter correctly', async () => {
+  it('given just price max, filters correctly', async () => {
     const response = await request(app).get(
       `${apiURL}?price_max=15340`
     );
@@ -101,7 +81,7 @@ describe('Test price & stars inputs to /products', () => {
     ).toBe(true);
   });
 
-  it('should apply star min and max filters correctly', async () => {
+  it('given both star min and max, filters correctly', async () => {
     const response = await request(app).get(
       `${apiURL}?star_min=120&star_max=380`
     );
@@ -111,7 +91,7 @@ describe('Test price & stars inputs to /products', () => {
     ).toBe(true);
   });
 
-  it('should apply star min filter correctly', async () => {
+  it('given just star min, filters correctly', async () => {
     const response = await request(app).get(
       `${apiURL}?star_min=400`
     );
@@ -121,7 +101,7 @@ describe('Test price & stars inputs to /products', () => {
     ).toBe(true);
   });
 
-  it('should apply star max filter correctly', async () => {
+  it('given just star max, filters correctly', async () => {
     const response = await request(app).get(
       `${apiURL}?star_max=200`
     );
@@ -130,89 +110,122 @@ describe('Test price & stars inputs to /products', () => {
       response.body.every(product => product.stars <= 200)
     ).toBe(true);
   });
+
+  it('given same star min and max, returns only products with exact star amount', async () => {
+    const stars = 500;
+    const response = await request(app).get(
+      `${apiURL}?star_min=${stars}&star_max=${stars}`
+    )
+
+    expect(response.status).toBe(200);
+    expect(response.body.length).toBeGreaterThan(0);
+    expect(
+      response.body.every(product => product.stars === stars)
+    ).toBe(true);
+  })
+
+  it('given same price min and max, returns only products with exact price amount', async () => {
+    const price = 900000;
+    const response = await request(app).get(
+      `${apiURL}?price_min=${price}&price_max=${price}`
+    )
+
+    expect(response.status).toBe(200);
+    expect(response.body.length).toBeGreaterThan(0);
+    expect(
+      response.body.every(product => product.price === price)
+    ).toBe(true);
+  })
 })
 
-describe('Test sorting', () => {
-  it('test default sorting', async () => {
+describe('GET /products sorting', () => {
+  it('default sorting (name asc)', async () => {
     const response = await request(app).get(
       apiURL
     );
     const products = response.body;
-    const sortedProducts = products.sort((a,b) => a.name.localeCompare(b.name));
+    const unsortedProducts = JSON.stringify(products);
+    const sortedProducts = JSON.stringify(products.sort((a,b) => a.name.localeCompare(b.name)));
 
     expect(response.status).toBe(200);
-    expect(products).toEqual(sortedProducts);
+    expect(unsortedProducts).toEqual(sortedProducts);
   })
 
-  it('test names sorting (default asc)', async () => {
+  it('name sorting (with default asc)', async () => {
     const response = await request(app).get(
       `${apiURL}?sort=name`
     );
     const products = response.body;
-    const sortedProducts = products.sort((a,b) => a.name.localeCompare(b.name));
+    const unsortedProducts = JSON.stringify(products);
+    const sortedProducts = JSON.stringify(products.sort((a,b) => a.name.localeCompare(b.name)));
 
     expect(response.status).toBe(200);
-    expect(products).toEqual(sortedProducts);
+    expect(unsortedProducts).toEqual(sortedProducts);
   })
 
-  it('test names sorting desc', async () => {
+  it('name desc', async () => {
     const response = await request(app).get(
       `${apiURL}?sort=name&order=desc`
     );
     const products = response.body;
-    const sortedProducts = products.sort((a,b) => b.name.localeCompare(a.name));
+    const unsortedProducts = JSON.stringify(products);
+    const sortedProducts = JSON.stringify(products.sort((a,b) => b.name.localeCompare(a.name)));
 
     expect(response.status).toBe(200);
-    expect(products).toEqual(sortedProducts);
+    expect(unsortedProducts).toEqual(sortedProducts);
   })
 
-  it('test price sorting desc', async () => {
+  it('price desc', async () => {
     const response = await request(app).get(
       `${apiURL}?sort=price&order=desc`
     );
     const products = response.body;
-    const sortedProducts = products.sort((a,b) => b.price - a.name);
+    const unsortedProducts = JSON.stringify(products);
+    const sortedProducts = JSON.stringify(products.sort((a,b) => b.price - a.name));
 
     expect(response.status).toBe(200);
-    expect(products).toEqual(sortedProducts);
+    expect(unsortedProducts).toEqual(sortedProducts);
   })
 
-  it('test price sorting asc', async () => {
+  it('price asc', async () => {
     const response = await request(app).get(
       `${apiURL}?sort=price&order=asc`
     );
     const products = response.body;
-    const sortedProducts = products.sort((a,b) => a.price - b.name);
+    const unsortedProducts = JSON.stringify(products);
+    const sortedProducts = JSON.stringify(products.sort((a,b) => a.price - b.name));
 
     expect(response.status).toBe(200);
-    expect(products).toEqual(sortedProducts);
+    expect(unsortedProducts).toEqual(sortedProducts);
   })
 
-  it('test stars sorting desc', async () => {
+  it('stars desc', async () => {
     const response = await request(app).get(
       `${apiURL}?sort=stars&order=desc`
     );
     const products = response.body;
-    const sortedProducts = products.sort((a,b) => b.stars - a.stars);
+    const unsortedProducts = JSON.stringify(products);
+    const sortedProducts = JSON.stringify(products.sort((a,b) => b.stars - a.stars));
 
     expect(response.status).toBe(200);
-    expect(products).toEqual(sortedProducts);
+    expect(unsortedProducts).toEqual(sortedProducts);
   })
 
-  it('test stars sorting asc', async () => {
+  it('stars asc', async () => {
     const response = await request(app).get(
-      `${apiURL}?sort=stars&order=desc`
+      `${apiURL}?sort=stars&order=asc`
     );
     const products = response.body;
-    const sortedProducts = products.sort((a,b) => a.stars - b.stars);
+    const unsortedProducts = JSON.stringify(products);
+    const sortedProducts = JSON.stringify(products.sort((a,b) => a.stars - b.stars));
 
     expect(response.status).toBe(200);
-    expect(products).toEqual(sortedProducts);
+    expect(unsortedProducts).toEqual(sortedProducts);
   })
 })
 
-describe('Test limit and offset', () => {
-  it('test small limit', async () => {
+describe('GET /products limit and offset', () => {
+  it('small limit', async () => {
     const response = await request(app).get(
       `${apiURL}?limit=2`
     );
@@ -221,7 +234,7 @@ describe('Test limit and offset', () => {
     expect(response.body.length).toBeLessThanOrEqual(2);
   })
 
-  it('test offset with default limit (3)', async () => {
+  it('offset with default limit 3', async () => {
     const response1 = await request(app).get(
       `${apiURL}?categories=electronics&limit=15`
     );
@@ -235,7 +248,7 @@ describe('Test limit and offset', () => {
     expect(response1.body.slice(6,9)).toEqual(response2.body);
   })
 
-  it('test offset with set limit', async () => {
+  it('offset with limit 2', async () => {
     const response1 = await request(app).get(
       `${apiURL}?categories=home%20goods&limit=15`
     );
@@ -249,7 +262,7 @@ describe('Test limit and offset', () => {
     expect(response1.body.slice(2,4)).toEqual(response2.body);
   })
 
-  it('test default offset and limit', async () => {
+  it('default offset and limit', async () => {
     const response1 = await request(app).get(
       `${apiURL}?categories=beauty`
     );
@@ -264,8 +277,8 @@ describe('Test limit and offset', () => {
   })
 })
 
-describe('Test request limit', () => {
-  it.skip('test limit', async () => {
+describe('GET /products max requests', () => {
+  it.skip('request limit', async () => {
     for (let i=0;i<app.get('maxRequests'); i++) {
       const response = await request(app).get(apiURL);
 
@@ -277,8 +290,8 @@ describe('Test request limit', () => {
   })
 })
 
-describe('Test invalid params', () => {
-  it('test invalid category', async () => {
+describe('GET /products invalid params', () => {
+  it('invalid category', async () => {
     const response = await request(app).get(
       `${apiURL}?categories=jewelry`
     )
@@ -290,7 +303,7 @@ describe('Test invalid params', () => {
     });
   })
 
-  it('test invalid category with multiple categories', async () => {
+  it('invalid category with multiple given categories', async () => {
     const response = await request(app).get(
       `${apiURL}?categories=sports,jewelry`
     )
@@ -302,7 +315,7 @@ describe('Test invalid params', () => {
     });
   })
 
-  it('test invalid sort', async () => {
+  it('invalid sort', async () => {
     const response = await request(app).get(
       `${apiURL}?sort=random`
     )
@@ -314,7 +327,7 @@ describe('Test invalid params', () => {
     });
   })
 
-  it('test invalid offset', async () => {
+  it('invalid offset', async () => {
     const response = await request(app).get(
       `${apiURL}?offset=-1`
     )
@@ -326,7 +339,7 @@ describe('Test invalid params', () => {
     });
   })
 
-  it('test invalid limit', async () => {
+  it('invalid limit', async () => {
     const response = await request(app).get(
       `${apiURL}?limit=-1`
     )
@@ -338,7 +351,7 @@ describe('Test invalid params', () => {
     });
   })
 
-  it('test invalid order', async () => {
+  it('invalid order', async () => {
     const response = await request(app).get(
       `${apiURL}?order=dasc`
     )
@@ -350,7 +363,7 @@ describe('Test invalid params', () => {
     });
   })
 
-  it('test invalid min price', async () => {
+  it('invalid min price', async () => {
     const response = await request(app).get(
       `${apiURL}?price_min=200.00`
     )
@@ -362,7 +375,7 @@ describe('Test invalid params', () => {
     });
   })
 
-  it('test invalid max price', async () => {
+  it('invalid max price', async () => {
     const response = await request(app).get(
       `${apiURL}?price_max=200.00`
     )
@@ -374,7 +387,7 @@ describe('Test invalid params', () => {
     });
   })
 
-  it('test invalid price relation', async () => {
+  it('invalid price relation', async () => {
     const response = await request(app).get(
       `${apiURL}?price_min=200&price_max=100`
     )
@@ -386,7 +399,7 @@ describe('Test invalid params', () => {
     });
   })
 
-  it('test invalid min stars', async () => {
+  it('invalid min stars', async () => {
     const response = await request(app).get(
       `${apiURL}?star_min=200.00`
     )
@@ -398,7 +411,7 @@ describe('Test invalid params', () => {
     });
   })
 
-  it('test invalid max stars', async () => {
+  it('invalid max stars', async () => {
     const response = await request(app).get(
       `${apiURL}?star_max=200.34`
     )
@@ -410,7 +423,7 @@ describe('Test invalid params', () => {
     });
   })
 
-  it('test invalid stars relation', async () => {
+  it('invalid stars relation', async () => {
     const response = await request(app).get(
       `${apiURL}?star_min=200&star_max=100`
     )
